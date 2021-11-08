@@ -1,0 +1,2 @@
+# nodescript
+about node script
