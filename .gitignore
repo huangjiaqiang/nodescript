@@ -107,4 +107,7 @@ ddns/config.xml
 ddns.xml
 deployment.xml
 .idea
-ip
+.vscode
+ip_cache
+log.txt
+*/config.xml

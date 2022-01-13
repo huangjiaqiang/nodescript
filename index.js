@@ -3,6 +3,8 @@ const schedule = require('node-schedule');
 
 let ddns = require('./ddns/ddns')
 
+let utils = require('./utils')
+
 
 const scheduleCronstyle = ()=>{
 
@@ -11,7 +13,14 @@ const scheduleCronstyle = ()=>{
     schedule.scheduleJob(rule, ddns.run)
 }
 
+
+// process.argv.forEach(function(val, index, array){
+//     console.log(index + ':' + val)
+// })
+utils.log('start schedule')
 scheduleCronstyle()
+// ddns.run()
+
 
 
 

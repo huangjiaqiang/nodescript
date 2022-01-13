@@ -6,29 +6,44 @@ const fs = require('fs')
 const readXml = require('xmlreader');
 const path = require("path");
 
+const utils = require('../utils')
+
 let apiKey = ''
 let baseHost = ''
 let rrhost = ''
 
-readXml.read(fs.readFileSync('./ddns/config.xml', 'utf8'), (err, respon)=>{
-    baseHost = respon.root.domain.text()
-    apiKey = respon.root.apikey.text()
-    rrhost = respon.root.rrhost.text()
-    if (rrhost == null)
-    {
-        throw Error('not set rrhost')
-    }
-    console.log('read config:'+"apikey="+apiKey)
-    console.log('read config:'+"basehost="+baseHost)
-    console.log('read config:'+"rrhost="+rrhost)
-})
 
-const saveIpFile = './ip'
 
+function getIpCacheFile()
+{
+    return utils.getSourcePath()+"/ip_cache"
+}
+
+
+function init(){
+
+
+    var configFile = utils.getSourcePath()+'/ddns/config.xml'
+
+    readXml.read(fs.readFileSync(configFile, 'utf8'), (err, respon)=>{
+        baseHost = respon.root.domain.text()
+        apiKey = respon.root.apikey.text()
+        rrhost = respon.root.rrhost.text()
+        if (rrhost == null)
+        {
+            throw Error('not set rrhost')
+        }
+        console.log('read config:'+"apikey="+apiKey)
+        console.log('read config:'+"basehost="+baseHost)
+        console.log('read config:'+"rrhost="+rrhost)
+    })
+}
 
 
 function run(){
     console.log('ddns')
+
+    init()
 
     let hostName = baseHost
     hostName = rrhost + "." + baseHost
@@ -54,12 +69,13 @@ function run(){
                 }
                 let localip = xmlResp.namesilo.request.ip.text()
                 console.log('local ip ='+localip)
-                console.log('local ip file path '+path.resolve(saveIpFile))
-                if (fs.existsSync(saveIpFile))
+                console.log('local ip file path '+path.resolve(getIpCacheFile()))
+                if (fs.existsSync(getIpCacheFile()))
                 {
-                    let oldip = fs.readFileSync(saveIpFile, 'utf8')
+                    let oldip = fs.readFileSync(getIpCacheFile(), 'utf8')
                     if (oldip === localip)
                     {
+                        utils.log('dns upgrade is not must')
                         return;
                     }
                 }
@@ -82,8 +98,11 @@ function run(){
 
                                     if (result)
                                     {
-                                        fs.writeFileSync(saveIpFile, localip)
-                                        console.log('update success:'+ host + '=' + localip)
+                                        fs.writeFileSync(getIpCacheFile(), localip)
+                                        utils.log('update success:'+ host + '=' + localip)
+                                    }else
+                                    {
+                                        utils.log('update fail:'+ host + '=' + localip)
                                     }
                                 })
                             }
@@ -97,7 +116,7 @@ function run(){
 
         });
     }).on('error', (err => {
-        console.log("Error: "+err.message)
+        utils.log("Error: "+err.message)
     }))
 
 }
@@ -110,6 +129,9 @@ function run(){
  */
 function updateRecord(rrid, rrhost, ip, onResult)
 {
+
+    init()
+
     let url = 'https://www.namesilo.com/api/dnsUpdateRecord?version=1&type=xml&key=' + apiKey + '&domain=' + baseHost + '&rrid=' + rrid + '&rrhost=' + rrhost + '&rrvalue=' + ip + '&rrttl=7207'
     https.get(url, (resp) => {
         let data = '';
