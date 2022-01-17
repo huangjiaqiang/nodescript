@@ -71,7 +71,7 @@ log = function logToFile(msg)
 {
     let m = getCurrentTime()+ " "+msg
     console.log(m)
-    fs.appendFile(getLogOutputFile(), '\n' + m, function(error){
+    fs.appendFile(getLogOutputFile(), m + '\n', function(error){
         if(error) console.log(error.message)
     })
 }
