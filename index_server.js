@@ -1,7 +1,7 @@
 const https = require('https')
 const http = require("http");
 
-const port = 8030
+const port = 8084
 
 const fs =require('fs')
 const path = require('path')
@@ -19,13 +19,13 @@ const server = http.createServer((req, res) =>{
     result += '\n'
 
 
-    try {
-        const data = fs.readFileSync('./ddns.js', 'utf8')
-        console.log(data)
-        result += data
-    } catch (err) {
-        console.error(err)
-    }
+    // try {
+    //     const data = fs.readFileSync('./ddns.js', 'utf8')
+    //     console.log(data)
+    //     result += data
+    // } catch (err) {
+    //     console.error(err)
+    // }
 
 
     res.end('hello world\n '+result)
